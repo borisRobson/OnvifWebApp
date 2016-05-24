@@ -1,0 +1,16 @@
+Areas for investigation
+x 	Examine and understand the ONVIF standard
+x	Review the areas of functionality covered 
+x	Review the PTZ function in detail
+x	Are we able to retrieve the current XYZ coordinates from any camera?
+x	Are we able to send a camera to preset XYZ coordinates?
+x	Do we have variable speed control for PTZ?
+x	How does a camera report that it had PTZ support?
+x	Review the discovery function in detail
+x	What details are provided by the cameras?
+x	Are their different versions of auto-discovery within ONVIF that we need to support to gain the widest compatibility?
+---------------------------------------------------------------
+
+
+
+

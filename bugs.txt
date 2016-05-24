@@ -1,0 +1,11 @@
+camSite BUGS
+----------
+1. Camera already found routine
+	Currently checks length of array recoeved against length of old array.
+	If a camera were to drop out and a new one connected in the same search it would not be added.
+
+	FIXED: 
+		used node underscore uniq function when adding cameras
+
+2. Info & Capabilities display
+	Routine to get object within object not displaying all info

@@ -1,0 +1,114 @@
+##-- ONVIF CAM CONTROLLER API --##
+
+/discovery
+	GET - @params - none
+
+		  @returns - ARRAY of IP addresses
+
+	e.g http://localhost:3000/discovery
+			returns ["10.10.40.153","10.10.40.62"]
+
+/connect
+	GET - @params - {host:"target ip address", user: "user name", pass: "password"};
+
+		  @returns - STRING - rtsp stream uri;
+
+		  	e.g http://localhost:3000/connect?user=admin&pass=admin&host=10.10.40.153
+
+		  		returns: {"uri":"rtsp://10.10.40.153/live.sdp","invalidAfterConnect":false,"invalidAfterReboot":false,"timeout":"P1Y"};
+
+		  		**NB - returned uri will not work as is, needs authorisation params added
+		  			rtsp://admin:admin@10.10.40.153/live.sdp
+
+/movement
+	POST - @params - {type:"absolute/relative/continuous", dir:"direction",pan:"value 0 to 100", tilt:"value 0 to 100", profile: "active profile", 
+						user:"user name", pass: "password", host:"ip"};
+
+		   @returns - success : undefined
+		   			  error: error message
+
+		    e.g http://localhost:3000/movement - POST.body = {type:"rel",dir:"up", pan:"100", tilt:"0", profile:"Profile1",user:"admin",pass:"admin",host:"10.10.40.153"};
+		    	returns: undefined;
+
+/details
+	GET - @params - {user:"user name", pass: "password", host: "target ip"};
+
+		  @returns - ARRAY of objects of profiles, each with video/audio info
+
+		  e.g http://localhost:3000/details?user=admin&pass:admin&host=10.10.40.153
+
+		  		returns - Array[Object, Object, Object]
+
+		  			Object { $: Object, name: "Profile1", videoSourceConfiguration: Object, audioSourceConfiguration: Object, videoEncoderConfiguration: Object, 	audioEncoderConfiguration: Object, PTZConfiguration: Object, extension: Object }
+		  			
+
+/capabilities
+	GET - @params - {user:"user name", pass: "password", host: "target ip"};
+
+		  @returns - OBJECT of device capabilities as objects
+
+		  e.g http://localhost:3000/capabilties?user=admin&pass:admin&host=10.10.40.153
+
+		  	returns - Object { device: Object, events: Object, imaging: Object, media: Object, PTZ: Object, extension: Object }
+		  		**NB - as with details recursive function used to get object values
+
+/getInfo
+	GET - @params - {user:"user name", pass: "password", host: "target ip"};
+
+		  @returns - OBJECT of device information
+
+		  e.g http://localhost:3000/getInfo?user=admin&pass:admin&host=10.10.40.153
+
+		    returns - Object { manufacturer: "VIVOTEK", model: "DCS-5615", firmwareVersion: "", serialNumber: "F07D680F3B34", hardwareId: "TI" }
+
+/presets
+	**NB - preset name = user defined name of preset location
+		   preset token = string value set by device for preset location
+
+	GET - @params - {host: "ip", user: "user name", pass: "password"};
+
+		  @returns - OBJECT names and tokens of preset locations
+
+		  e.g http://localhost:3000/presets?user=admin&pass:admin&host=10.10.40.153
+
+		  		returns - {"1":"camctrl_c0_preset_i1","2":"camctrl_c0_preset_i2","Preset635914740642144435":"camctrl_c0_preset_i0","new":"camctrl_c0_preset_i3",
+		  					"door":"camctrl_c0_preset_i4","new2":"camctrl_c0_preset_i5","new3":"camctrl_c0_preset_i6","new4":"camctrl_c0_preset_i7"}
+
+	POST - @params - {preset: "preset Token", host: "ip", user: "user name", pass: "password"};
+
+		   @returns - STRING success or fail
+		   		e.g localhost:3000/presets - POST.body = {preset:"camctrl_c0_preset_i4",user:"admin",pass:"admin",ip:"10.10.40.153"}
+
+	/presets/modify
+		**NB - GET removes preset by token, POST adds preset by name
+		GET - @params - {preset: "preset Token", host: "ip", user: "user name", pass: "password"};
+
+			  @returns - success/error message
+			  	e.g localhost:3000/presets/modify?preset=camctrl_c0_preset_i4&host=10.10.40.153&user=admin&pass=admin
+
+		POST - @params - {name: "preset name", host: "ip", user: "user name", pass: "password"};
+
+			   @returns - success: ARRAY with token id
+			   			  fail: error message
+
+			   		e.g success: [{"setPresetResponse":[{"presetToken":["camctrl_c0_preset_i8"]}]}]
+			   			fail: [Error: ONVIF SOAP Fault: The requested name already exist for another preset.]
+
+/location
+	**NB - haven't had a camera which reports location to test
+
+	GET - @params - {host: "ip", user: "user name", pass: "password"};
+
+		  @returns - success: OBJECT of x,y,current status
+		  		position: {
+						x: res.position.panTilt.$.x	(optional)
+						y: res.position.panTilt.$.y (optional)
+						zoom: res.position.zoom.$.x (optional)
+						moveStatus: res.moveStatus	(optional)	
+						utcTime: res.utcTime	    (required)
+					}
+
+					fail: STRING error message
+
+
+-----------------------------------------------------------------------

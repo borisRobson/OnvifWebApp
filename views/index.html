@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Onvif Cam Viewer</title>   
+ 
+ <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">    
+ <!--  <link rel="stylesheet" href="/css/bootstrap.min.css">-->
+ 
+</head>
+    
+<body>
+    <nav class="navbar navbar-default">
+        <div class="conatiner-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="http://www.paxton.co.uk/home.asp">Paxton</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="row">
+            <h1 class="col-md-6 text-left">Live Stream</h1>        
+            <h1 class="col-md-6 text-right">Camera Control</h1>      
+        </div>
+    </div>
+    
+    <div class="row">
+    <div class="jumbotron col-md-6 ">
+       <embed id="player"  type="application/x-vlc-plugin" height = 750 width = 800  autostart="true">
+    </div>   
+    
+    <div class="jumbotron col-md-6">        
+        <div class="container col-md-12">
+            
+          <ul class="nav nav-pills">             
+            <li class="col-md-2 col-md-offset-2 text-center"><a data-toggle="pill" href="#discovery">Discover & Connect</a></li>
+            <li class="col-md-2 text-center"><a data-toggle="pill" href="#movement">PTZ Movement</a></li>
+            <li class="col-md-2 text-center"><a data-toggle="pill" href="#presets">Preset Locations</a></li>
+            <li class="col-md-2 text-center" ><a data-toggle="pill" href="#details">Details</a></li>                        
+          </ul>
+
+          <div class="tab-content">
+            <div id="movement" class="tab-pane fade in ">            
+                <div class="row">
+                    <div class="btn-group" data-toggle="buttons">
+                        <br/>
+                        <label class="radio-inline">
+                            <input type="radio" name="move" id="absMove" class="col-md-2">Absolute Move
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="move" id="contMove" class="col-md-2 ">Continuous Move
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="move" id="relMove">Relative Move
+                        </label>
+                    </div>
+                    <h4 class="col-md-4" id="ptzEnabled">PTZ Enabled: </h4>
+                </div>             
+                
+                <br/>
+                <br/>
+                <div class="row">
+                    <button type="button" onclick="move('upLeft')" id="upLeft" class="col-md-2">Up Left</button>
+                    <button type="button" onclick="move('up')" id="up" class="col-md-2 col-md-offset-1">Up </button>
+                    <button type="button" onclick="move('upRight')" id="upRight" class="col-md-2 col-md-offset-1">Up Right</button>
+                    <button type="button" onclick="move('zoomIn')" id="zoomIn" class="col-md-2 col-md-offset-1">Zoom In</button>
+                </div>
+                <br/>
+                <br/>
+                <div class="row">
+                    <button type="button" onclick="move('left')" id="left" class="col-md-2">Left</button>
+                    <button type="button" id="stop" class="col-md-2 col-md-offset-1">Stop</button>
+                    <button type="button" onclick="move('right')" id="right" class="col-md-2 col-md-offset-1">Right</button>
+                </div>
+                <br/>
+                <br/>
+                <div class="row">
+                    <button type="button" onclick="move('downLeft')" id="downLeft" class="col-md-2">Down Left</button>
+                    <button type="button" onclick="move('down')" id="down" class="col-md-2 col-md-offset-1">Down</button>
+                    <button type="button" onclick="move('downRight')" id="downRight" class="col-md-2 col-md-offset-1">Down Right</button>
+                    <button type="button" onclick="move('zoomOut')" id="zoomOut" class="col-md-2 col-md-offset-1">Zoom Out</button>
+                </div>
+                <br/>
+                <br/>
+                <div class="row" id="sliders">
+                  <div class="col-md-3 ">
+                        <label for="panFader">Pan Speed</label>
+                        <input type="range" min="0" max="100" value="50" id="panFader" step="1" oninput="panUpdate(value)" >
+                        <output for="panFader" id="panSpeed">50</output>   
+                    </div>
+                    <div class="col-md-3 col-md-offset-1">
+                        <label for="tiltFader">Tilt Speed</label>
+                        <input type="range" min="0" max="100" value="50" id="tiltFader" step="1" oninput="tiltUpdate(value)" >
+                        <output for="tiltFader" id="tiltSpeed">50</output>   
+                    </div>
+                    <div class="col-md-3 col-md-offset-1">
+                        <label for="zoomFader">Zoom Speed</label>
+                        <input type="range" min="0" max="100" value="50" id="zoomFader" step="1" oninput="zoomUpdate(value)" >
+                        <output for="zoomFader" id="zoomSpeed">50</output>   
+                    </div>
+
+                </div>
+            </div>          
+
+            <div id="presets" class="tab-pane fade">
+                <br/>                 
+                <div class="row">
+                    <button type="button" id="getLoc" class="col-md-2 col-md-offset-1">Get Current Location</button>
+                    <textarea rows="1" id="xLoc" cols="20" class="col-md-offset-1">x:</textarea>                                      
+                    <textarea rows="1" id="yLoc" cols="20" class="col-md-offset-1">y:</textarea>                  
+                </div>
+                <br/>
+                <div class="row">
+                    <button type="button" id="getPresets" class="col-md-2 col-md-offset-1">Get Presets</button>
+                    <select id="presetsBox" class="col-md-6 col-md-offset-1"></select>
+                </div>
+                <br/>
+                <br/>
+                <div class="row">                    
+                    <button type="button" id="goToPreset" class="col-md-2 col-md-offset-1">Go To Preset</button>
+                    <button type="button" id="remPreset" class="col-md-2 col-md-offset-1">Remove Preset</button>                    
+                </div>
+                <br/>
+                <br/>
+                <div class="row">
+                    <div >      
+                        <label for="presetName" class="col-md-2 col-md-offset-1">Preset Name:</label>                  
+                        <input type="text" id="presetName" class="col-md-4 ">  
+                        <button type="button" id="addPreset" class="col-md-2 col-md-offset-1">Add Preset</button>   
+                    </div>
+                    <br/>                    
+                </div>
+                <br/>              
+            </div>      
+
+            <div id="details" class="tab-pane fade">
+                
+                <br/>
+                
+                <div class="row">
+                    <label for="profiles" class="col-md-2 col-md-offset-2">Profiles: </label>
+                    <select id="profiles" class="col-md-4"></select>                    
+                </div>
+                
+                <br/>
+                
+                <label for="videoDetails">Video Details:</label>
+                <label for="audioDetails" class="col-md-offset-5">Audio Details:</label>
+                
+                <div class="row">                    
+                    <textarea class="col-md-5" rows="10" id="videoDetails"></textarea>
+                    <textarea class="col-md-5 col-md-offset-1" rows="10" id="audioDetails"></textarea>
+                </div>
+                
+                <br/>
+                
+                <label for="camDetails">Camera Details:</label>
+                <label for="camCapabilities" class = "col-md-offset-5">Camera Capabilities:</label>
+                <div class="row">                                        
+                    <textarea id="camDetails" class="col-md-5" rows="10"></textarea>              
+                    <textarea id="camCapabilities" class="col-md-5 col-md-offset-1" rows="10"></textarea>      
+                </div>                
+                
+            </div>  
+
+            <div id="discovery" class="tab-pane fade">
+                <div class="container">
+                    <br/>
+                    <button type="button" id="autoDiscover"  class="col-md-2">Find Cameras</button>                 
+                     <select id="cameras" size="1" class="col-md-3 col-md-offset-1">
+                    </select>
+                    
+                    <br/>
+                    <br/>
+                    <p id="camStatus"></p>
+                    <br/>
+                    
+                    <p class="col-md-2 ">UserName:</p>
+                    <input type="text" id="user" class="col-md-3">
+                    <p class="col-md-2">Password:</p>
+                    <input type="password" id="pass" class="col-md-3">
+                    
+                    <br/>
+                    <br/>
+                    <br/>
+                    
+                  <button type="button" id="connect" class="col-md-2 ">Connect</button>
+                </div>
+            </div>
+          </div>      
+         </div>
+    </div>         
+</div> 
+    
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>  
+
+<script>        
+
+$('#discovery').on('click', 'button',function(){
+    if (this.id === "autoDiscover"){
+        document.getElementById("camStatus").innerHTML = "Finding Cameras...";     
+        document.getElementById("cameras").options.length = 0;
+        $('.camStatus').innerHTML = "Finding Cameras...";
+        $.ajax('/discovery', {
+            timeout: 5500,
+            success: function(result){
+                $.each(result, function(index, item){          
+                    var status = document.getElementById("camStatus");
+                    var camBox = document.getElementById("cameras");
+                    var camFound = document.createElement("option");      
+                    camFound.text = item;
+                    camFound.value = item;
+                    camBox.appendChild(camFound);
+                    status.innerHTML = "Found "+camBox.length+ " Cameras";  
+                })
+            },
+            error: function(xml,timeOut, message){
+                var camBox = document.getElementById("cameras");
+                status.innerHTML = "Found "+camBox.length+ " Cameras";  
+            }
+        });                   
+    }
+    else{
+        Data.clearText("all");
+        Connect.getUri();   
+    }
+})
+
+var Connect = {
+    getUri: function(){
+        var credentials = Access.getCredentials();                
+        var promise = $.Deferred();
+        $.ajax({
+            type: 'GET', 
+            url: "/connect",
+            data: {user:credentials.userName, pass:credentials.password, host: credentials.host},
+            success: function(stream){
+                console.log("data: ",stream);
+                var uriPrefix = "rtsp://"+credentials.userName+":"+credentials.password+"@";
+                var uriResp = stream.uri;
+                var uriTarget = uriResp.replace("rtsp://",uriPrefix);                    
+                console.log(uriTarget);
+                document.getElementById("player").src = uriTarget;   
+                Details.getDetails();                             
+            },
+            error: function(xhr,status,err){
+                console.log("xhr: ", xhr);
+                console.log("status: ", status);
+                console.log("err: ", err);
+                }
+            });
+        return promise;
+    }
+}
+
+var Access = {
+    getCredentials: function(){
+        var username = document.getElementById("user").value;
+        var pass = document.getElementById("pass").value;
+        var ipAddr = document.getElementById("cameras").value;
+        var logIn = {userName: username, password:pass, host: ipAddr};
+        return logIn;
+    }
+}
+ 
+var Details = {
+            getDetails: function(){                  
+                var profSelect = document.getElementById("profiles");
+                profSelect.options.length = 0;
+                var credentials = Access.getCredentials();                
+                $.getJSON('/details',{user:credentials.userName, pass:credentials.password, host: credentials.host})
+                    .done(function(data){     
+                        $.each(data, function(index,prof){                                                                                        
+                            var profile = document.createElement("option");
+                            profile.text = prof.name;
+                            profile.value = prof.name;
+                            profSelect.appendChild(profile);
+                        })
+                        var activePrf = profSelect.selectedIndex;                        
+                        $.each(data[activePrf], function(index,prf){                           
+                            var val = Data.getValues(prf);   
+                            list = "";                            
+                            var details = {name:index, value:val};                             
+                            Data.displayData(details, "details");
+                        })                       
+                        Capabilities.getCapabilities();
+                        Device.getDevice();                               
+                    })                
+                },
+            updateDetails: function(){
+                var profSelect = document.getElementById("profiles");                
+                var credentials = Access.getCredentials();  
+                Data.clearText("details");              
+                $.getJSON('/details',{user:credentials.userName, pass:credentials.password, host: credentials.host})
+                    .done(function(data){
+                        var activePrf = profSelect.selectedIndex;                        
+                        $.each(data[activePrf], function(index,prf){   
+                            list = "";
+                            var details = {name:index, value:Data.getValues(prf)};  
+                            Data.displayData(details, "details");
+                        })   
+                    })
+                }
+            }
+
+var Capabilities = {
+    getCapabilities: function(){
+        var camTxt = document.getElementById("camCapabilities");
+        var ptzLabel = document.getElementById("ptzEnabled");
+        ptzLabel.innerHTML="PTZ Enabled: False";
+        var credentials = Access.getCredentials();                
+       $.getJSON('/capabilities', {user:credentials.userName, pass:credentials.password, host: credentials.host})
+        .done(function(data){             
+            $.each(data, function(index, cap){
+                list = "";
+                var capabilities = {name:index, value:Data.getValues(cap)};                      
+                Data.displayData(capabilities, "cap");
+                if (index.indexOf("PTZ") !== -1){
+                    document.getElementById("ptzEnabled").innerHTML = "PTZ Enabled: True";
+                }
+            })            
+        })
+    }
+}
+
+var Device = {
+    getDevice: function(){
+        var credentials = Access.getCredentials();                
+       $.get('getInfo',{user:credentials.userName, pass:credentials.password, host: credentials.host})
+        .done(function(data){
+            console.log(data);
+                var camDet = document.getElementById("camDetails");
+                camDet.value += "Manufacturer: " +data.manufacturer + "\n" +
+                                "Model :" + data.model + "\n" +
+                                "Serial Number :"+data.serialNumber + "\n" +
+                                "Firmware : "+data.firmwareVersion + "\n";
+            })
+    }
+}
+
+var vidDetails = document.getElementById("videoDetails");
+var audioDetails = document.getElementById("audioDetails");
+var camDetails = document.getElementById("camDetails");
+var camTxt = document.getElementById("camCapabilities");
+
+var list;
+var Data = {
+    displayData: function(data, origin){                       
+        var type = data.name;    
+        var vidType = type.indexOf("video");
+        var audType = type.indexOf("audio");
+
+        var target;
+
+        if ((vidType !==-1)||(audType!==-1)||(origin === "cap")){
+            if((vidType !== -1)&&(audType === -1)){
+                target = vidDetails;
+            }
+            else if((audType !== -1)&&(vidType === -1)){
+                target = audioDetails;
+            }
+            else if(origin === "cap"){
+                target = camTxt;
+            }            
+            if(data.value.length !== 0){           
+                target.value += data.name+("\n");
+                target.value += data.value+("\n");
+            }
+        }
+    },
+    clearText: function(areas){          
+       if(areas === "all"){
+            vidDetails.value = "";
+            audioDetails.value = "";
+            camDetails.value = "";
+            camTxt.value = "";
+        }
+        else{
+            vidDetails.value = "";
+            audioDetails.value = "";
+        }
+    },
+    getValues: function(profile){      
+        try{            
+            var test = 
+                $.map(profile, function(property, index){           
+                    console.log("property :" + property + " index: " + index);
+                    if (property instanceof Object){     
+                        Data.getValues(property);
+                    }
+                    else{
+                        var prop = index + ": " + property;                  
+                        list += prop + "\n";                        
+                    }                
+                })    
+                test = list;
+                return test;            
+            }       
+        catch(err){    
+            return null;  
+        }       
+    }
+}
+
+$(document).on('change','#profiles', function(){               
+        var ind = document.getElementById("profiles").selectedIndex;
+        var opt = document.getElementById("profiles").options;
+        Details.updateDetails();
+        console.log("index: ", opt[ind].index);
+});
+
+$(document).on('click','#getLoc',function(){
+    var xLoc = document.getElementById("xLoc");
+    var yLoc = document.getElementById("yLoc");
+    var credentials = Access.getCredentials();                
+    $.ajax({
+        type: 'GET',
+        url: '/location',
+        data: {user:credentials.userName, password:credentials.password, host:credentials.host},
+        timeout: 1000,
+        success: function(data){console.log(data);
+            if (data.indexOf("Error") !== -1){
+                alert(data);
+                console.log(data);
+            }   
+        }
+    });
+});
+
+$(document).ready(function(){
+    Data.clearText("all");
+})
+
+//Presets//
+$(document).on('click','#getPresets', function(){               
+    Preset.getPresets();       
+})
+$(document).on('click','#goToPreset',function(){        
+    Preset.goToPreset();
+});    
+$(document).on('click','#addPreset',function(){
+    Preset.addPreset();
+});
+$(document).on('click','#remPreset', function(){
+    Preset.removePreset();
+});
+
+var Preset = {         
+    getPresets: function(){                  
+        var credentials = Access.getCredentials();                
+        $.ajax({
+            type: 'GET',
+            url: "/presets",
+            data: {user:credentials.userName, pass:credentials.password, host: credentials.host},
+            success: function(data){
+                var presetBox = document.getElementById("presetsBox");
+                presetsBox.options.length = 0;
+                Object.getOwnPropertyNames(data).forEach(function(val, idx, array) {
+                var presetName = val.toString();
+                var presetToken = data[val].toString();
+                var preset = presetName + ":" + presetToken;      
+                var prst = document.createElement("option");
+                prst.textContent = preset;
+                prst.value = preset;
+                presetsBox.appendChild(prst);
+                })
+            },
+            error: function(err){
+                console.log(err);
+            }
+        });
+    },
+    goToPreset: function(){
+        var credentials = Access.getCredentials();                
+        var pToken = document.getElementById("presetsBox").value;
+        var slc = pToken.indexOf(":")+1;
+        pToken = pToken.slice(slc);
+        $.post('/presets',{preset:pToken,user:credentials.userName, pass:credentials.password, host: credentials.host});
+    },
+    addPreset: function(){            
+        var presetName = document.getElementById("presetName").value;
+        var credentials = Access.getCredentials();
+        var prof = document.getElementById("profiles").value;             
+        $.post('/presets/modify',{name:presetName, host: credentials.host, user:credentials.userName, pass:credentials.password})
+            .done(function(){
+                Preset.getPresets();
+            });
+    },
+    removePreset: function(){     
+        var credentials = Access.getCredentials();
+        var pToken = document.getElementById("presetsBox").value;
+        var slc = pToken.indexOf(":")+1;
+        pToken = pToken.slice(slc);
+        console.log(pToken);
+        $.get('/presets/modify', {preset:pToken,user:credentials.userName, pass:credentials.password, host: credentials.host})
+            .done(function(){
+                Preset.getPresets();
+            });
+        }
+    }
+
+function panUpdate(speed) {
+   document.querySelector('#panSpeed').value = speed;
+    }
+function tiltUpdate(speed) {
+   document.querySelector('#tiltSpeed').value = speed;
+    }
+function zoomUpdate(speed) {
+   document.querySelector('#zoomSpeed').value = speed;
+    }
+
+    
+function move(dir){
+    var abs = document.getElementById("absMove").checked;
+    var cont = document.getElementById("contMove").checked;
+    var rel = document.getElementById("relMove").checked;
+    var xSpeed = document.querySelector('#panSpeed').value;
+    var ySpeed = document.querySelector('#tiltSpeed').value;
+    var credentials = Access.getCredentials();
+    var type;
+    var prof = document.getElementById("profiles").text;
+    if (abs === true)
+        {
+            type = "abs";
+        }
+    else if(cont === true)
+        {
+            type = "cont";
+        }
+    else{   
+            type = "rel";
+        }
+    console.log(type);
+    var move = $.ajax({
+        type: 'POST',
+        url: '/movement',
+        timeout: 500,
+        data: {type:type, dir:dir, pan:xSpeed, tilt:ySpeed, profile:prof,user:credentials.userName,pass:credentials.password,host:credentials.host},
+        success: console.log("ok"),
+        error: function(xhr,status,err){                               
+            console.log("err: ", err);
+            }
+        });
+    }        
+</script>
+</html>

@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/svnrepos/!svn/ver/89385/Research%20Projects/0041%20-%20ONVIF%20Camera%20Controller/camSite/routes
+END
+details.js
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/svnrepos/!svn/ver/89385/Research%20Projects/0041%20-%20ONVIF%20Camera%20Controller/camSite/routes/details.js
+END
+presets.js
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/svnrepos/!svn/ver/89385/Research%20Projects/0041%20-%20ONVIF%20Camera%20Controller/camSite/routes/presets.js
+END
+discovery.js
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/svnrepos/!svn/ver/89385/Research%20Projects/0041%20-%20ONVIF%20Camera%20Controller/camSite/routes/discovery.js
+END
+location.js
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/svnrepos/!svn/ver/89385/Research%20Projects/0041%20-%20ONVIF%20Camera%20Controller/camSite/routes/location.js
+END
+capabilities.js
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/svnrepos/!svn/ver/89385/Research%20Projects/0041%20-%20ONVIF%20Camera%20Controller/camSite/routes/capabilities.js
+END
+connect.js
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/svnrepos/!svn/ver/89385/Research%20Projects/0041%20-%20ONVIF%20Camera%20Controller/camSite/routes/connect.js
+END
+movement.js
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/svnrepos/!svn/ver/89385/Research%20Projects/0041%20-%20ONVIF%20Camera%20Controller/camSite/routes/movement.js
+END
+getInfo.js
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/svnrepos/!svn/ver/89385/Research%20Projects/0041%20-%20ONVIF%20Camera%20Controller/camSite/routes/getInfo.js
+END
